@@ -38,12 +38,37 @@ const DeleteUser = async (req, res) => {
     }
 }
 
+const updateUser = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { username, email, password_hash, bio, age, gender, registration_date, is_active } = req.body;
+        const userData = {
+            username,
+            email,
+            password_hash,
+            bio,
+            age,
+            gender,
+            registration_date,
+            is_active
+        };
+        const UpdateById = await userService.updateUser(id, userData);
+        res.status(200).json({
+            message: "Update User Successfully",
+            Data: UpdateById
+        })
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 const getAllUsers = async (req, res) => {
     try {
         const { page, limit, orderBy, orderDirection, ...filterParams } = req.query;
         const pagination = { page, limit, orderBy, orderDirection };
         const users = await userService.getAllUsers(pagination, filterParams);
-        
+
         // Check if no users were found
         if (users.data.length === 0) {
             return res.status(200).json({
@@ -78,6 +103,6 @@ const getUserById = async (req, res) => {
 }
 
 module.exports = {
-    getAllUsers, getUserById, DeleteUser, createUser
+    getAllUsers, getUserById, DeleteUser, createUser, updateUser
     // Other controller functions
 };

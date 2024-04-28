@@ -126,6 +126,32 @@ const createUser = async (userData, res) => {
     }
 };
 
+const updateUser = async (id, userData) => {
+    const modified_on = new Date().toISOString();
+    try {
+        return await new Promise((resolve, reject) => {
+            bcrypt.hash(userData.password_hash, 10, (err, hashedPassword) => {
+                if (err) {
+                    console.error("Error hashing password", err);
+                    reject("Error hashing password");
+                    return;
+                }
+                const query = "UPDATE users SET username = ?, email = ?, password_hash = ?, bio = ?, age = ?, gender = ?, registration_date = ?, modified_on = ? WHERE id = ?";
+                dbconnection.query(query, [userData.username, userData.email, hashedPassword, userData.bio, userData.age, userData.gender, userData.registration_date, modified_on, id], (error, results) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(results);
+                    }
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        throw new Error('Error updating user');
+    }
+};
+
 const DeleteUser = (id) => {
     return new Promise((resolve, reject) => {
         const query = "delete * from users where id = ?";
@@ -216,5 +242,5 @@ const getUserById = (id) => {
 };
 
 module.exports = {
-    getAllUsers, getUserById, createUser, DeleteUser
+    getAllUsers, getUserById, createUser, DeleteUser, updateUser
 };
