@@ -68,4 +68,49 @@ const Addlastlogin = (username) => {
     })
 }
 
-module.exports = { userLogin };
+
+const modifyPassword = async (modifyData) => {
+    try {
+        if (!modifyData.username || !modifyData.password_hash || !modifyData.newpassword) {
+            throw new Error('All fields are required');
+        }
+
+        // Database query to find user by username
+        dbconnection.query('SELECT * FROM users WHERE username = ?', [modifyData.username], (err, results) => {
+            if (err) {
+                throw err;
+            } else if (results.length === 0) {
+                throw new Error('User not found');
+            } else {
+                const user = results[0];
+                // Compare provided password hash with stored password hash
+                bcrypt.compare(modifyData.password_hash, user.password_hash, (err, passwordMatch) => {
+                    if (err) {
+                        throw err;
+                    } else if (!passwordMatch) {
+                        throw new Error('Password does not match');
+                    } else {
+                        // Hash new password
+                        bcrypt.hash(modifyData.newpassword, 10, (err, hashedPassword) => {
+                            if (err) {
+                                throw err;
+                            }
+                            // Update password hash in the database
+                            dbconnection.query('UPDATE users SET password_hash = ? WHERE id = ?', [hashedPassword, user.id], (err, result) => {
+                                if (err) {
+                                    throw err;
+                                } else {
+                                    return { message: "Password Updated Successfully" };
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        throw error; // Propagate the error for centralized error handling
+    }
+};
+
+module.exports = { userLogin, modifyPassword };

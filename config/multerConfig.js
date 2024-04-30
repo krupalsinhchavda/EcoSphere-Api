@@ -16,8 +16,8 @@ const storage = multer.diskStorage({
 
         // Adjust the path based on the type of upload
         let uploadFolder;
-        if (req.url.includes('sales')) {
-            uploadFolder = 'uploads/salesman';
+        if (req.originalUrl.includes('stores')) { // Use req.originalUrl instead of req.url
+            uploadFolder = 'uploads/stores';
         } else {
             uploadFolder = 'uploads/profiles';
         }
@@ -33,6 +33,7 @@ const storage = multer.diskStorage({
         cb(null, uniqueFilename);
     }
 });
+
 
 const upload = multer({
     storage: storage,
