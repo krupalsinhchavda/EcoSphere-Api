@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 const dbconnection = require('../config/database');
 const puppeteer = require('puppeteer');
-const { query } = require('express');
 
 const getInvoices = async () => {
     return new Promise((resolve, reject) => {
@@ -184,14 +183,17 @@ const getInvoicesBill = async (id, res) => {
         const pdfBuffer = await page.pdf({ format: 'A4' });
         await browser.close();
 
-        // Send PDF as response
+        // Set response headers for PDF
         res.setHeader('Content-Type', 'application/pdf');
+
+        // Send PDF buffer as response
         res.send(pdfBuffer);
     } catch (error) {
+        // Handle any errors that occur during the process
         console.error('Error generating PDF invoice:', error);
         res.status(500).send('Error generating PDF invoice');
     }
-}
+};
 
 
 module.exports = {

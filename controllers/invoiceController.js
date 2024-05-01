@@ -102,7 +102,7 @@ const updateInvoices = async (req, res) => {
 const getInvoicesBill = async (req, res) => {
     try {
         const id = req.params.id;
-        const invoice = await invoiceService.getInvoicesBill(id);
+        const invoice = await invoiceService.getInvoicesBill(id,res);
 
         if (invoice.affectedRows === 0) {
             return res.status(404).json({ message: "Record not found" });
