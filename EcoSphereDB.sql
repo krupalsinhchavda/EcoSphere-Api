@@ -90,3 +90,76 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (parent_comment_id) REFERENCES comments(id)
 );
+
+-- Create a products table
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT NOT NULL,
+    store_id INT,
+    category ENUM('Electronics', 'Clothing', 'Books', 'Furniture', 'Grocery'),
+    image_url VARCHAR(255) NOT NULL,
+    created_on DATETIME,
+    modified_on DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    FOREIGN KEY (store_id) REFERENCES store(id)
+);
+
+-- Create an orders table
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_number VARCHAR(20) NOT NULL,
+    user_id INT,
+    total_amount DECIMAL(10, 2),
+    order_date DATE,
+    delivery_date DATE,
+    status ENUM('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'),
+    shipping_address VARCHAR(255),
+    billing_address VARCHAR(255),
+    created_on DATETIME,
+    modified_on DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ALTER TABLE store
+ALTER TABLE store
+ADD COLUMN ownerId INT,
+ADD CONSTRAINT fk_owner
+    FOREIGN KEY (ownerId)
+    REFERENCES users(id);
+
+-- Create a products table
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT NOT NULL,
+    store_id INT,
+    category ENUM('Electronics', 'Clothing', 'Books', 'Furniture', 'Grocery'),
+    image_url VARCHAR(255) NOT NULL,
+    created_on DATETIME,
+    modified_on DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    FOREIGN KEY (store_id) REFERENCES store(id)
+);
+
+-- Create an orders table
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_number VARCHAR(20) NOT NULL,
+    user_id INT,
+    total_amount DECIMAL(10, 2),
+    order_date DATE,
+    delivery_date DATE,
+    status ENUM('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'),
+    shipping_address VARCHAR(255),
+    billing_address VARCHAR(255),
+    created_on DATETIME,
+    modified_on DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
