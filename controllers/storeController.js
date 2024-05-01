@@ -19,20 +19,27 @@ const CreateStore = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
 const UpdateStore = async (req, res) => {
     const id = req.params.id;
     const { name, location, ownerId, contact_person, contact_number, opening_hours, category, website, established_year, is_active } = req.body;
-    const image_url = req.file ? req.file.path : null;
+    // const image_url = req.file ? req.file.path : null;
     const storeData = {
-        id, name, location, image_url, ownerId, contact_person, contact_number, opening_hours, category, website, established_year, is_active
-    }
-    const UpdateStore = await storeService.UpdateStore(storeData);
+        name, location, ownerId, contact_person, contact_number, opening_hours, category, website, established_year, is_active
+    };
 
-    if (UpdateStore.data.length === 0) {
-        return res.status(404).json({ message: "Store not found" });
+    try {
+        const updateResult = await storeService.UpdateStore(id, storeData);
+
+        if (updateResult.affectedRows === 0) {
+            return res.status(404).json({ message: "Store not found" });
+        }
+
+        res.status(200).json({ message: "Update Store Successfully", updatedStore:updateResult });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-    res.status(200).json({ message: "Update Store Successfully", UpdateStore });
-}
+};
 const DeleteStore = async (req, res) => {
     try {
         const id = req.params.id

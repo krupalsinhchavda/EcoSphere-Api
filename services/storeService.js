@@ -103,29 +103,44 @@ function storeEmail(storeData, email, results) {
 const CreateStore = async (storeData, res) => {
     const createdOn = new Date();
     try {
-        return await new Promise((resolve, reject) => {
-            const query = "INSERT INTO store (name, location, image_url, ownerId, contact_person, contact_number, opening_hours, category, website, established_year, created_on) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            dbconnection.query(query, [storeData.name, storeData.location, storeData.image_url, storeData.ownerId, storeData.contact_person, storeData.contact_number, storeData.opening_hours, storeData.category, storeData.website, storeData.established_year, createdOn], (error, results) => {
+        return new Promise((resolve, reject) => {
+            const checkquery = "SELECT * FROM users WHERE id = ?";
+            dbconnection.query(checkquery, [storeData.ownerId], (error, results) => {
                 if (error) {
                     reject(error);
-                }
+                } 
                 else {
-                    const query = "SELECT email FROM users WHERE id = ?";
-                    dbconnection.query(query, [storeData.ownerId], (error, userResult) => {
-                        if (error) {
-                            throw error;
-                        }
+                    if (results.length === 0) {
+                        reject(new Error('Owner not found'));
+                    }
+                     else {
+                        const query = "INSERT INTO store (name, location, image_url, ownerId, contact_person, contact_number, opening_hours, category, website, established_year, created_on) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        dbconnection.query(query, [storeData.name, storeData.location, storeData.image_url, storeData.ownerId, storeData.contact_person, storeData.contact_number, storeData.opening_hours, storeData.category, storeData.website, storeData.established_year, createdOn], (error, results) => {
+                            if (error) {
+                                reject(error);
+                            }
+                            else {
+                                const query = "SELECT email FROM users WHERE id = ?";
+                                dbconnection.query(query, [storeData.ownerId], (error, userResult) => {
+                                    if (error) {
+                                        throw error;
+                                    }
 
-                        const email = userResult.length > 0 ? userResult[0].email : '';
+                                    const email = userResult.length > 0 ? userResult[0].email : '';
 
-                        storeEmail(storeData, email, res);
+                                    storeEmail(storeData, email, res);
 
-                        resolve(userResult);
-                    });
+                                    resolve(userResult);
+                                });
+                                resolve(results);
+                            }
+                        })
+                    }
                     resolve(results);
                 }
-            })
+            });
         });
+
         // const user = await getUserById(storeData.ownerId);
         // const email = user ? user.email : '';
 
@@ -135,6 +150,7 @@ const CreateStore = async (storeData, res) => {
         res.status(500).json({ message: 'Error creating store', error });
     }
 };
+
 // Function to fetch user details by ID from the users table
 const getUserById = async (userId) => {
     return new Promise((resolve, reject) => {
@@ -149,25 +165,20 @@ const getUserById = async (userId) => {
     });
 };
 
-const UpdateStore = async (storeData, id) => {
+const UpdateStore = async (id, storeData) => {
     const modified_on = new Date();
-    try {
-        return await new Promise((resolve, reject) => {
-            const query = "UPDATE store SET "
-            dbconnection.query(query, [storeData], (error, results) => {
-                if (error) {
-                    reject(error)
-                }
-                else {
-                    resolve(results)
-                }
-            });
-        })
-    }
-    catch (error) {
-        throw new Error('Error Update Store')
-    }
-}
+    const query = "UPDATE store SET name = ?, location = ?, ownerId = ?, contact_person = ?, contact_number = ?, opening_hours = ?, category = ?, website = ?, established_year = ?, is_active = ?, modified_on = ? WHERE id = ?";
+
+    return new Promise((resolve, reject) => {
+        dbconnection.query(query, [storeData.name, storeData.location, storeData.ownerId, storeData.contact_person, storeData.contact_number, storeData.opening_hours, storeData.category, storeData.website, storeData.established_year, storeData.is_active, modified_on, id], (error, results) => {
+            if (error) {
+                reject(new Error(`Error updating store: ${error.message}`));
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
 
 const DeleteStore = async (id) => {
     return new Promise((resolve, reject) => {
