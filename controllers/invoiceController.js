@@ -2,7 +2,12 @@ const invoiceService = require('../services/invoiceService');
 
 const getInvoices = async (req, res) => {
     try {
-        const invoices = await invoiceService.getInvoices();
+        const { page, limit, orderBy, orderDirection, ...filterParams } = req.body;
+        const pagination = { page, limit, orderBy, orderDirection };
+        const invoices = await invoiceService.getInvoices(pagination, filterParams);
+        if (invoices.length === 0) {
+            return res.status(404).json({ message: 'Invoice not found' });
+        }
         res.status(200).json({
             meassage: "Get Invoice Succssfully",
             Data: invoices

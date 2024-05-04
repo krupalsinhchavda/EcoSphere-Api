@@ -2,14 +2,51 @@ const mysql = require('mysql');
 const dbconnection = require('../config/database');
 const puppeteer = require('puppeteer');
 
-const getInvoices = async () => {
+const getInvoices = async (pagianation, filterParams) => {
     return new Promise((resolve, reject) => {
-        const query = "SELECT * FROM invoices";
-        dbconnection.query(query, (error, results) => {
+        const page = parseInt(pagianation.page) || 1;
+        const limit = parseInt(pagianation.limit) || 10;
+        const orderBy = pagianation.orderBy || 'created_on';
+        const orderDirection = pagianation.orderDirection || 'DESC';
+        const offset = (page - 1) * limit;
+
+        let query = "SELECT * FROM invoices";
+        const queryParams = [];
+
+        const whereClauses = [];
+        for (const [key, value] of Object.entries(filterParams)) {
+            if (value) {
+                whereClauses.push(`${key} LIKE ?`);
+                queryParams.push(`%${value}%`);
+            }
+        }
+
+        if (whereClauses.length > 0) {
+            query += `WHERE ${whereClauses.join(' AND ')}`;
+        }
+        query += ` ORDER BY ${orderBy} ${orderDirection} LIMIT ?, ?`;
+        queryParams.push(offset, limit);
+        dbconnection.query(query, queryParams, (error, results) => {
             if (error) {
                 reject(error);
             } else {
-                resolve(results);
+                dbconnection.query("SELECT COUNT(*) AS total FROM invoices", (err, totalCountResult) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        const total = totalCountResult[0].total;
+                        const totalPages = Math.ceil(total / limit);
+                        resolve({
+                            data: results,
+                            page: page,
+                            limit: limit,
+                            total: total,
+                            totalPages: totalPages
+                        });
+                    }
+                });
+                // resolve(results);
             }
         });
     });
