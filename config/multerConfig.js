@@ -14,16 +14,18 @@ const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const userId = uuidv4();
 
-        // Adjust the path based on the type of upload
         let uploadFolder;
-        if (req.originalUrl.includes('stores')) { // Use req.originalUrl instead of req.url
+        if (req.originalUrl.includes('stores')) {
             uploadFolder = 'uploads/stores';
-        } else {
+        }
+        else if (req.originalUrl.includes('products')) {
+            uploadFolder = 'uploads/products';
+        }
+        else {
             uploadFolder = 'uploads/profiles';
         }
         const userFolder = path.join(uploadFolder, userId);
 
-        // Create the user folder if it doesn't exist
         CreateDirectory(userFolder);
 
         cb(null, userFolder);

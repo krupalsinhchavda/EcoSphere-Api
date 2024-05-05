@@ -25,7 +25,8 @@ const userRoutes = require('./routes/userRoutes');
 const storeRoutes = require('./routes/storeRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const postRoutes = require('./routes/postRoutes');
-// const commentRoutes = require('./routes/commentRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+const productsRoutes = require('./routes/productsRoutes');
 
 
 
@@ -36,7 +37,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/stores', storeRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/posts', postRoutes);
-// app.use('/api/comments', commentRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/products', productsRoutes);
 
 // Start the server
 app.listen(PORT, () => {

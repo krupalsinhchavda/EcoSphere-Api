@@ -22,7 +22,7 @@ const getInvoices = async (pagianation, filterParams) => {
         }
 
         if (whereClauses.length > 0) {
-            query += `WHERE ${whereClauses.join(' AND ')}`;
+            query += ` WHERE ${whereClauses.join(' AND ')}`;
         }
         query += ` ORDER BY ${orderBy} ${orderDirection} LIMIT ?, ?`;
         queryParams.push(offset, limit);
