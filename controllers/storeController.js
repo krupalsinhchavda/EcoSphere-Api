@@ -54,7 +54,7 @@ const DeleteStore = async (req, res) => {
 
 const GetStore = async (req, res) => {
     try {
-        const { page, limit, orderBy, orderDirection, ...filterParams } = req.body;
+        const { page, limit, orderBy, orderDirection, ...filterParams } = req.query;
         const pagination = { page, limit, orderBy, orderDirection };
         const store = await storeService.GetStore(pagination, filterParams);
 

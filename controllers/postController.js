@@ -24,7 +24,7 @@ const createPost = async (req, res) => {
 }
 const getPost = async (req, res) => {
     try {
-        const { page, limit, orderBy, orderDirection, ...filterParams } = req.body;
+        const { page, limit, orderBy, orderDirection, ...filterParams } = req.query;
         const pagination = { page, limit, orderBy, orderDirection };
         const post = await postService.getPost(pagination, filterParams);
 

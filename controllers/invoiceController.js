@@ -2,7 +2,7 @@ const invoiceService = require('../services/invoiceService');
 
 const getInvoices = async (req, res) => {
     try {
-        const { page, limit, orderBy, orderDirection, ...filterParams } = req.body;
+        const { page, limit, orderBy, orderDirection, ...filterParams } = req.query;
         const pagination = { page, limit, orderBy, orderDirection };
         const invoices = await invoiceService.getInvoices(pagination, filterParams);
         if (invoices.length === 0) {
