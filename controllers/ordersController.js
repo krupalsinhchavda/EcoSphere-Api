@@ -77,7 +77,7 @@ const UpdateOrder = async (req, res) => {
 const GetOrdersById = async (req, res) => {
     try {
         const id = req.params.id;
-        const order = await ordersService.GetOrdersById(id, );
+        const order = await ordersService.GetOrdersById(id,);
 
         if (!order) {
             res.status(400).json({
@@ -139,7 +139,7 @@ const DeleteOrder = async (req, res) => {
             message: "Order deleted",
             Data: order
         });
-        
+
     }
     catch (error) {
         res.status(500).json({
@@ -175,11 +175,20 @@ const UpdateOrderStatus = async (req, res) => {
 
 const GetAllOrders = async (req, res) => {
     try {
-        const orders = await ordersService.GetAllOrders();
-        res.status(200).json({
-            message: "Orders found",
-            Data: orders
-        })
+        const { page, limit, orderBy, orderDirection, ...filterParams } = req.query;
+        const pagination = { page, limit, orderBy, orderDirection };
+
+        const orders = await ordersService.GetAllOrders(pagination, filterParams);
+
+        if (orders.data.length === 0) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        else {
+            res.status(200).json({
+                message: "Orders found",
+                Data: orders
+            })
+        }
     }
     catch (error) {
         res.status(500).json({

@@ -58,17 +58,52 @@ const UpdateProduct = async (id, obj) => {
     })
 }
 
-const GetAllProducts = async () => {
+const GetAllProducts = async (pagination, filterParams) => {
     return new Promise((resolve, reject) => {
-        let query = `SELECT products.*,store.name AS Store_Name
-                    FROM products
-                    JOIN store ON products.store_id = store.id`;
-        dbconnection.query(query, (error, result) => {
+        const page = parseInt(pagination.page) || 1;
+        const limit = parseInt(pagination.limit) || 10;
+        const orderBy = pagination.orderBy || 'created_On';
+        const orderDirection = pagination.orderDirection || 'DESC';
+        const offset = (page - 1) * limit;
+        let query = "SELECT * FROM products"
+        // let query = `SELECT products.*,store.name AS Store_Name
+        //             FROM products
+        //             JOIN store ON products.store_id = store.id`;
+        const queryParams = [];
+
+        const whereClauses = [];
+        for (const [key, value] of Object.entries(filterParams)) {
+            if (value) {
+                whereClauses.push(`${key} LIKE ?`);
+                queryParams.push(`%${value}%`);
+            }
+        }
+        if (whereClauses.length > 0) {
+            query += ` WHERE ${whereClauses.join(' AND ')}`;
+        }
+        query += ` ORDER BY ${orderBy} ${orderDirection} LIMIT ?, ?`;
+        queryParams.push(offset, limit);
+        dbconnection.query(query, queryParams, (error, result) => {
             if (error) {
                 reject(error);
             }
             else {
-                resolve(result);
+                dbconnection.query("SELECT COUNT(*) AS total FROM products", (err, totalCountResult) => {
+                    if (err) {
+                        reject(err)
+                    }
+                    else {
+                        const total = totalCountResult[0].total;
+                        const totalPages = Math.ceil(total / limit);
+                        resolve({
+                            data: result,
+                            page: page,
+                            limit: limit,
+                            total: total,
+                            totalPages: totalPages
+                        });
+                    }
+                })
             }
         })
     })
@@ -110,7 +145,7 @@ const GetProductByStoreId = async (id) => {
                                     WHERE products.store_id = ?`;
                     dbconnection.query(query, id, (error, productResult) => {
                         if (error) {
-                            reject(error); 
+                            reject(error);
                         } else {
                             if (productResult.length === 0) {
                                 resolve(null);

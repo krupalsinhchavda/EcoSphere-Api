@@ -51,14 +51,14 @@ const UpdateProduct = async (req, res) => {
             category,
             is_active
         };
-        
-        const existingProduct = await productsService.GetProductByid(id);
-        if (!existingProduct) {
-            return res.status(404).json({
-                message: "Product not found",
-                error: "The specified product ID does not exist"
-            });
-        }
+
+        // const existingProduct = await productsService.GetProductByid(id);
+        // if (!existingProduct) {
+        //     return res.status(404).json({
+        //         message: "Product not found",
+        //         error: "The specified product ID does not exist"
+        //     });
+        // }
 
         const Product = await productsService.UpdateProduct(id, obj);
 
@@ -83,8 +83,9 @@ const UpdateProduct = async (req, res) => {
 
 const GetAllProducts = async (req, res) => {
     try {
-        const products = await productsService.GetAllProducts();
-
+        const { page, limit, orderBy, orderDirection, ...filterParams } = req.query;
+        const pagination = { page, limit, orderBy, orderDirection };
+        const products = await productsService.GetAllProducts(pagination, filterParams);
         if (products.length === 0) {
             res.status(404).json({
                 message: "No products found"
