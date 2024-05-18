@@ -28,7 +28,8 @@ const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const productsRoutes = require('./routes/productsRoutes');
 const ordersRoutes = require('./routes/ordersRoutes');
-
+const favoritesRoutes = require('./routes/favoritesRoutes');
+const reviewsRoutes = require('./routes/reviewsRoutes');
 
 
 
@@ -41,6 +42,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/favorites', favoritesRoutes);
+app.use('/api/reviews', reviewsRoutes);
 
 // Start the server
 app.listen(PORT, () => {
